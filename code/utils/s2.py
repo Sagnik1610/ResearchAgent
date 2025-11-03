@@ -136,7 +136,7 @@ def filter_papers(
 
 def get_relevant_references(
     paper: dict,
-    fields: list = ['paperId', 'corpusId', 'isInfluential', 'title', 'abstract', 'year', 'publicationDate', 'openAccessPdf'],
+    fields: list = ['paperId', 'corpusId', 'isInfluential', 'title', 'abstract', 'year', 'publicationDate'],
     batch_size: int = 1000, top_k: int = 10
 ):
     # Fetch references in pages, respecting the rate limit via get_request
