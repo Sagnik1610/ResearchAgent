@@ -1,3 +1,4 @@
+import re
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
@@ -36,3 +37,14 @@ class BaseAgent(ABC):
             f"{metric}: \n- Definition: {METRIC2DESCRIPTION[type][metric]} \n- Review: {feedback['review']} \n- Feedback: {feedback['feedback']} \n"
             for metric, feedback in feedbacks.items()
         ]) + "\n"
+
+    def parse_output(self, text: str) -> Dict[str, Any]:
+        review_match = re.search(r"Review:\s*(.*?)(?:\nFeedback:|\nRating:|$)", text, re.DOTALL | re.IGNORECASE)
+        feedback_match = re.search(r"Feedback:\s*(.*?)(?:\nRating:|$)", text, re.DOTALL | re.IGNORECASE)
+        rating_match = re.search(r"Rating(?:\s*\(1-5\))?:\s*([1-5])", text, re.DOTALL | re.IGNORECASE)
+
+        review = review_match.group(1).strip() if review_match else None
+        feedback = feedback_match.group(1).strip() if feedback_match else None
+        rating = int(rating_match.group(1)) if rating_match else None
+
+        return {'review': review, 'feedback': feedback, 'rating': rating}
