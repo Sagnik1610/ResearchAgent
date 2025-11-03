@@ -245,9 +245,3 @@ class MethodValidator(BaseAgent):
         )
         return prompt
 
-    def parse_output(self, text: str) -> Dict[str, Any]:
-        match = re.search(r"Review:\s*(.*?)\nFeedback:\s*(.*?)\nRating(?:\s*\(1-5\))?:\s*([1-5])", text, re.DOTALL | re.IGNORECASE)
-        return (
-            {'review': match.group(1).strip(), 'feedback': match.group(2).strip(), 'rating': int(match.group(3))}
-            if match else {'review': None, 'feedback': None, 'rating': None}
-        )
