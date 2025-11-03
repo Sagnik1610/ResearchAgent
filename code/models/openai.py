@@ -183,8 +183,7 @@ class OpenAIClient:
         if self._client is None:
             self._init_client()
             if self._client is None:
-                logging.error("Kutrim client unavailable.")
-                return None
+                raise ValueError("Krutrim client is not available. Please set the KRUTRIM_API_KEY environment variable.")
 
         attempt = 0
         while attempt < max_retries:

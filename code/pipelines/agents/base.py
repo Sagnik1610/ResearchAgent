@@ -41,10 +41,20 @@ class BaseAgent(ABC):
     def parse_output(self, text: str) -> Dict[str, Any]:
         review_match = re.search(r"Review:\s*(.*?)(?:\nFeedback:|\nRating:|$)", text, re.DOTALL | re.IGNORECASE)
         feedback_match = re.search(r"Feedback:\s*(.*?)(?:\nRating:|$)", text, re.DOTALL | re.IGNORECASE)
-        rating_match = re.search(r"Rating(?:\s*\(1-5\))?:\s*([1-5])", text, re.DOTALL | re.IGNORECASE)
 
         review = review_match.group(1).strip() if review_match else None
         feedback = feedback_match.group(1).strip() if feedback_match else None
-        rating = int(rating_match.group(1)) if rating_match else None
+
+        rating = None
+        if text:
+            for line in text.splitlines():
+                if "rating" in line.lower():
+                    match = re.search(r'([1-5])', line)
+                    if match:
+                        try:
+                            rating = int(match.group(1))
+                            break
+                        except (ValueError, IndexError):
+                            continue
 
         return {'review': review, 'feedback': feedback, 'rating': rating}
