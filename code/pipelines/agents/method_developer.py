@@ -30,10 +30,10 @@ class MethodDeveloper(BaseAgent):
             self.reset()
             response = self._chat(user_prompt=self._build_generation_prompt(context))
             self.generated = True
-            return self.parse_output(response)
+            return super().parse_output(response, ['Method', 'Rationale'])
         else:
             response = self._chat(user_prompt=self._build_refinement_prompt(context))
-            return self.parse_output(response)
+            return super().parse_output(response, ['Method', 'Rationale'])
 
     def _chat(self, user_prompt: str) -> str:
         self.messages.append({'role': 'user', 'content': user_prompt})
@@ -112,9 +112,3 @@ class MethodDeveloper(BaseAgent):
         )
         return prompt
 
-    def parse_output(self, text: str) -> Dict[str, str]:
-        match = re.search(r"Method:\s*(.*?)\s*Rationale:\s*(.*)", text, re.DOTALL)
-        return (
-            {'method': match.group(1).strip(), 'method_rationale': match.group(2).strip()}
-            if match else {'method': None, 'method_rationale': None}
-        )

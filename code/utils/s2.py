@@ -107,7 +107,7 @@ def flatten_list(items: list):
 
 def get_papers(
     ids: list,
-    fields: list = ['corpusId', 'title', 'abstract', 'year', 'publicationDate', 'referenceCount', 'citationCount', 'embedding.specter_v2'],
+    fields: list = ['corpusId', 'title', 'abstract', 'year', 'publicationDate', 'referenceCount', 'citationCount', 'embedding.specter_v2', 'status', 'license'],
     batch_size: int = 100
 ):
     response = [
@@ -120,6 +120,7 @@ def get_papers(
         )
         for ids_batched in batched(ids, batch_size)
     ]
+    logging.info(f"S2 API papers response: {response}")
     return flatten_list(response)
 
 

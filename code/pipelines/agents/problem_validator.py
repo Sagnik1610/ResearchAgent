@@ -235,3 +235,13 @@ class ProblemValidator(BaseAgent):
         )
         return prompt
 
+    def parse_output(self, text: str) -> Dict[str, Any]:
+        review_match = re.search(r"Review:\s*(.*)", text)
+        feedback_match = re.search(r"Feedback:\s*(.*)", text)
+        rating_match = re.search(r"Rating \(1-5\):\s*(\d)", text)
+
+        return {
+            'review': review_match.group(1).strip() if review_match else None,
+            'feedback': feedback_match.group(1).strip() if feedback_match else None,
+            'rating': int(rating_match.group(1)) if rating_match else None,
+        }

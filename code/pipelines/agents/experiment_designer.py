@@ -1,4 +1,5 @@
 import re
+import logging
 from typing import Dict, List
 
 from .base import BaseAgent
@@ -24,16 +25,20 @@ class ExperimentDesigner(BaseAgent):
         self.generated = False
 
     def run(self, context: Dict) -> Dict:
+        logging.info(f"Experiment designer input context: {context}")
         do_generation = (not self.generated) or (context.get('experiment') is None)
 
         if do_generation:
             self.reset()
             response = self._chat(user_prompt=self._build_generation_prompt(context))
             self.generated = True
-            return self.parse_output(response)
         else:
             response = self._chat(user_prompt=self._build_refinement_prompt(context))
-            return self.parse_output(response)
+
+        logging.info(f"Experiment designer raw output: {response}")
+        parsed_output = super().parse_output(response, ['Experiment', 'Rationale'])
+        logging.info(f"Experiment designer parsed output: {parsed_output}")
+        return parsed_output
 
     def _chat(self, user_prompt: str) -> str:
         self.messages.append({'role': 'user', 'content': user_prompt})
@@ -116,9 +121,3 @@ class ExperimentDesigner(BaseAgent):
         )
         return prompt
 
-    def parse_output(self, text: str) -> Dict[str, str]:
-        match = re.search(r"Experiment:\s*(.*?)\s*Rationale:\s*(.*)", text, re.DOTALL)
-        return (
-            {'experiment': match.group(1).strip(), 'experiment_rationale': match.group(2).strip()}
-            if match else {'experiment': None, 'experiment_rationale': None}
-        )
