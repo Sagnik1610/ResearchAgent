@@ -117,8 +117,10 @@ class ExperimentDesigner(BaseAgent):
         return prompt
 
     def parse_output(self, text: str) -> Dict[str, str]:
-        match = re.search(r"Experiment:\s*(.*?)\s*Rationale:\s*(.*)", text, re.DOTALL)
-        return (
-            {'experiment': match.group(1).strip(), 'experiment_rationale': match.group(2).strip()}
-            if match else {'experiment': None, 'experiment_rationale': None}
-        )
+        experiment_match = re.search(r"Experiment:\s*(.*)", text, re.DOTALL | re.IGNORECASE)
+        rationale_match = re.search(r"Rationale:\s*(.*)", text, re.DOTALL | re.IGNORECASE)
+
+        return {
+            'experiment': experiment_match.group(1).strip() if experiment_match else None,
+            'experiment_rationale': rationale_match.group(1).strip() if rationale_match else None,
+        }

@@ -249,6 +249,8 @@ class MethodValidator(BaseAgent):
         review_match = re.search(r"Review:\s*(.*)", text, re.DOTALL | re.IGNORECASE)
         feedback_match = re.search(r"Feedback:\s*(.*)", text, re.DOTALL | re.IGNORECASE)
         rating_match = re.search(r"Rating(?:\s*\(1-5\))?:\s*([1-5])", text, re.DOTALL | re.IGNORECASE)
+        if not rating_match:
+            rating_match = re.search(r"^\s*([1-5])\s*$", text, re.MULTILINE)
 
         return {
             'review': review_match.group(1).strip() if review_match else None,
