@@ -256,9 +256,9 @@ class ExperimentValidator(BaseAgent):
         return prompt
 
     def parse_output(self, text: str) -> Dict[str, Any]:
-        review_match = re.search(r"Review:\s*(.*)", text)
-        feedback_match = re.search(r"Feedback:\s*(.*)", text)
-        rating_match = re.search(r"Rating \(1-5\):\s*(\d)", text)
+        review_match = re.search(r"Review:\s*(.*)", text, re.DOTALL | re.IGNORECASE)
+        feedback_match = re.search(r"Feedback:\s*(.*)", text, re.DOTALL | re.IGNORECASE)
+        rating_match = re.search(r"Rating(?:\s*\(1-5\))?:\s*([1-5])", text, re.DOTALL | re.IGNORECASE)
 
         return {
             'review': review_match.group(1).strip() if review_match else None,

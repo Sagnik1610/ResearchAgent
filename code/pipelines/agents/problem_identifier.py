@@ -30,10 +30,10 @@ class ProblemIdentifier(BaseAgent):
             self.reset()
             response = self._chat(user_prompt=self._build_generation_prompt(context))
             self.generated = True
-            return super().parse_output(response, ['Problem', 'Rationale'])
+            return self.parse_output(response)
         else:
             response = self._chat(user_prompt=self._build_refinement_prompt(context))
-            return super().parse_output(response, ['Problem', 'Rationale'])
+            return self.parse_output(response)
 
     def _chat(self, user_prompt: str) -> str:
         self.messages.append({'role': 'user', 'content': user_prompt})
@@ -107,3 +107,9 @@ class ProblemIdentifier(BaseAgent):
         )
         return prompt
 
+    def parse_output(self, text: str) -> Dict[str, str]:
+        match = re.search(r"Problem:\s*(.*?)\s*Rationale:\s*(.*)", text, re.DOTALL)
+        return (
+            {'problem': match.group(1).strip(), 'problem_rationale': match.group(2).strip()}
+            if match else {'problem': None, 'problem_rationale': None}
+        )
