@@ -107,7 +107,7 @@ def flatten_list(items: list):
 
 def get_papers(
     ids: list,
-    fields: list = ['corpusId', 'title', 'abstract', 'year', 'publicationDate', 'referenceCount', 'citationCount', 'embedding.specter_v2', 'status', 'license'],
+    fields: list = ['corpusId', 'title', 'abstract', 'year', 'publicationDate', 'referenceCount', 'citationCount', 'embedding.specter_v2'],
     batch_size: int = 100
 ):
     response = [
