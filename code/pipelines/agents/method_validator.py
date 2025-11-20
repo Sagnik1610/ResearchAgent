@@ -3,7 +3,7 @@ from typing import Dict, Any
 from concurrent.futures import ThreadPoolExecutor
 
 from .base import BaseAgent
-
+from utils.parsing import parse_review_feedback_rating
 
 class MethodValidator(BaseAgent):
     def __init__(self, api_client=None):
@@ -246,8 +246,15 @@ class MethodValidator(BaseAgent):
         return prompt
 
     def parse_output(self, text: str) -> Dict[str, Any]:
-        match = re.search(r"Review:\s*(.*?)\nFeedback:\s*(.*?)\nRating(?:\s*\(1-5\))?:\s*([1-5])", text, re.DOTALL | re.IGNORECASE)
-        return (
-            {'review': match.group(1).strip(), 'feedback': match.group(2).strip(), 'rating': int(match.group(3))}
-            if match else {'review': None, 'feedback': None, 'rating': None}
-        )
+    
+        parsed = parse_review_feedback_rating(text)
+
+        if parsed['review'] is None or parsed['feedback'] is None:
+            review_match = re.search(r"Review:\s*(.*)", text, re.DOTALL | re.IGNORECASE)
+            feedback_match = re.search(r"Feedback:\s*(.*)", text, re.DOTALL | re.IGNORECASE)
+            if parsed['review'] is None and review_match:
+                parsed['review'] = review_match.group(1).strip()
+            if parsed['feedback'] is None and feedback_match:
+                parsed['feedback'] = feedback_match.group(1).strip()
+
+        return parsed

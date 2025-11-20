@@ -120,6 +120,7 @@ def get_papers(
         )
         for ids_batched in batched(ids, batch_size)
     ]
+    logging.info(f"S2 API papers response: {response}")
     return flatten_list(response)
 
 

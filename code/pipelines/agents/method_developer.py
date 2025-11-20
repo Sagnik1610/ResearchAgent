@@ -4,7 +4,7 @@ from typing import Dict, List
 from .base import BaseAgent
 from utils.evaluation import get_low_score_feedbacks
 from utils.formatting import list_of_items_to_grammatical_text
-
+from utils.parsing import parse_structured_sections
 
 class MethodDeveloper(BaseAgent):
     def __init__(self, api_client=None):
@@ -113,8 +113,17 @@ class MethodDeveloper(BaseAgent):
         return prompt
 
     def parse_output(self, text: str) -> Dict[str, str]:
-        match = re.search(r"Method:\s*(.*?)\s*Rationale:\s*(.*)", text, re.DOTALL)
-        return (
-            {'method': match.group(1).strip(), 'method_rationale': match.group(2).strip()}
-            if match else {'method': None, 'method_rationale': None}
-        )
+        sections = parse_structured_sections(text, ["Method", "Rationale"])
+        method = sections.get('method')
+        rationale = sections.get('rationale')
+
+        if method is None or rationale is None:
+            match = re.search(r"Method:\s*(.*?)\s*Rationale:\s*(.*)", text, re.DOTALL)
+            if match:
+                method = method or match.group(1).strip()
+                rationale = rationale or match.group(2).strip()
+
+        return {
+            'method': method,
+            'method_rationale': rationale,
+        }

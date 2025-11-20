@@ -4,7 +4,7 @@ from typing import Dict, List
 from .base import BaseAgent
 from utils.evaluation import get_low_score_feedbacks
 from utils.formatting import list_of_items_to_grammatical_text
-
+from utils.parsing import parse_structured_sections
 
 class ExperimentDesigner(BaseAgent):
     def __init__(self, api_client=None):
@@ -117,8 +117,18 @@ class ExperimentDesigner(BaseAgent):
         return prompt
 
     def parse_output(self, text: str) -> Dict[str, str]:
-        match = re.search(r"Experiment:\s*(.*?)\s*Rationale:\s*(.*)", text, re.DOTALL)
-        return (
-            {'experiment': match.group(1).strip(), 'experiment_rationale': match.group(2).strip()}
-            if match else {'experiment': None, 'experiment_rationale': None}
-        )
+        sections = parse_structured_sections(text, ["Experiment", "Rationale"])
+        experiment = sections.get('experiment')
+        rationale = sections.get('rationale')
+
+        if experiment is None or rationale is None:
+            experiment_match = re.search(r"Experiment:\s*(.*)", text, re.DOTALL | re.IGNORECASE)
+            rationale_match = re.search(r"Rationale:\s*(.*)", text, re.DOTALL | re.IGNORECASE)
+            if experiment is None and experiment_match:
+                experiment = experiment_match.group(1).strip()
+            if rationale is None and rationale_match:
+                rationale = rationale_match.group(1).strip()
+        return {
+            'experiment': experiment,
+            'experiment_rationale': rationale,
+        }

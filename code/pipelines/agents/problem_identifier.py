@@ -4,7 +4,7 @@ from typing import Dict, List
 from .base import BaseAgent
 from utils.evaluation import get_low_score_feedbacks
 from utils.formatting import list_of_items_to_grammatical_text
-
+from utils.parsing import parse_structured_sections
 
 class ProblemIdentifier(BaseAgent):
     def __init__(self, api_client=None):
@@ -108,8 +108,18 @@ class ProblemIdentifier(BaseAgent):
         return prompt
 
     def parse_output(self, text: str) -> Dict[str, str]:
-        match = re.search(r"Problem:\s*(.*?)\s*Rationale:\s*(.*)", text, re.DOTALL)
-        return (
-            {'problem': match.group(1).strip(), 'problem_rationale': match.group(2).strip()}
-            if match else {'problem': None, 'problem_rationale': None}
-        )
+        sections = parse_structured_sections(text, ["Problem", "Rationale"])
+        problem = sections.get('problem')
+        rationale = sections.get('rationale')
+
+        if problem is None or rationale is None:
+            # Fall back to the original broad regex to keep backwards compatibility
+            match = re.search(r"Problem:\s*(.*?)\s*Rationale:\s*(.*)", text, re.DOTALL)
+            if match:
+                problem = problem or match.group(1).strip()
+                rationale = rationale or match.group(2).strip()
+
+        return {
+            'problem': problem,
+            'problem_rationale': rationale,
+        }
